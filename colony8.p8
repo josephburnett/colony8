@@ -3,6 +3,7 @@ version 8
 __lua__
 
 function _init()
+   t=0
    surface={}
    objects={}
    for x=0,16 do
@@ -16,32 +17,28 @@ function _init()
 end
 
 function _update()
+   t+=1
    for x=0,15 do
       for y=0,15 do
          o=objects[x][y]
-         if o!=nil then
-            t=o.t
-            if t==nil or t==30 then
-               t=1
-               o.t=t
-            end
-            if t==1 then
+         if o!=nil and o.t!=t then
+            if t%30==0 then
                d=flr(rnd(5))
                dx=x
                dy=y
                if d==0 then
                   dx=x-1
                elseif d==1 then
-                  dx=x+2
+                  dx=x+1
                elseif d==2 then
                   dy=y-1
                else
                   dy=y+1
                end
+               o.t=t
+               objects[x][y]=nil
+               objects[dx][dy]=o
             end
-            o.t=t+1
-            objects[x][y]=nil
-            objects[dx][dy]=o
          end
       end
    end

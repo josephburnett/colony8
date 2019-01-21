@@ -15,7 +15,10 @@ function _init()
       phermones[x]={}
    end
    surface[8][8]={typ="colony"}
-   objects[8][8]={typ="ant"}
+   objects[8][8]={
+      typ="ant",
+      state="wandering"
+   }
    palt(0,false)
    palt(15,true)
 end
@@ -48,8 +51,40 @@ function _update()
    for x=0,15 do
       for y=0,15 do
          o=objects[x][y]
+         ox=x
+         oy=y
          if o!=nil and o.t!=t then
-            if t%30==0 then
+            if o.state=="following"
+               and t%30==0 then
+               d=o.direction
+               dx=x
+               dy=y
+               if d=="left" then
+                  dx=x-1
+               elseif d=="right" then
+                  dx=x+1
+               elseif d=="down" then
+                  dy=y+1
+               elseif d=="up" then
+                  dy=y-1
+               end
+               if dx<0 or dx>15
+                  or dy<0 or dy>15 then
+                  o.state="wandering"
+               else
+                  p=objects[dx][dy]
+                  if q!=nil and q.typ!="ant" then
+                     o.state="wandering"
+                  elseif p==nil then
+                     objects[x][y]=nil
+                     objects[dx][dy]=o
+                     ox=dx
+                     oy=dy
+                  end
+               end
+            end
+            if o.state=="wandering"
+               and t%30==0 then
                d=flr(rnd(5))
                dx=x
                dy=y
@@ -62,10 +97,22 @@ function _update()
                else
                   dy=y+1
                end
-               o.t=t
+               if dx<0 or dx>15
+                  or dy<0 or dy>15 then
+                  dx=x
+                  dy=y
+               end
                objects[x][y]=nil
                objects[dx][dy]=o
+               ox=dx
+               oy=dy
             end
+            p=phermones[ox][oy]
+            if p!=nil then
+               o.state="following"
+               o.direction=p
+            end
+            o.t=t
          end
       end
    end

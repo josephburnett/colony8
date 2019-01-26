@@ -17,7 +17,9 @@ function _init()
    surface[8][8]={typ="colony"}
    objects[8][8]={
       typ="ant",
-      state="wandering"
+      state="wandering",
+      x=8,
+      y=8
    }
    palt(0,false)
    palt(15,true)
@@ -25,6 +27,25 @@ end
 
 function _update()
    t+=1
+   update_phermones()
+   for x=0,15 do
+      for y=0,15 do
+         o=objects[x][y]
+         if o!=nil and o.t!=t then
+            if o.state=="following" then
+	       o=update_object_following(x,y,o)
+            end
+            if o.state=="wandering" then
+	       o=update_object_wandering(x,y,o)
+	    end
+	    o=update_object_phermones(x,y,o)
+	    o.t=t
+         end
+      end
+   end
+end
+
+function update_phermones()
    if btn(4) then
       if btnp(0) then
          phermones[cur_x][cur_y]="left"
@@ -48,83 +69,91 @@ function _update()
          cur_y+=1
       end
    end
-   for x=0,15 do
-      for y=0,15 do
-         o=objects[x][y]
-         ox=x
-         oy=y
-         if o!=nil and o.t!=t then
-            if o.state=="following"
-               and t%30==0 then
-               d=o.direction
-               dx=x
-               dy=y
-               if d=="left" then
-                  dx=x-1
-               elseif d=="right" then
-                  dx=x+1
-               elseif d=="down" then
-                  dy=y+1
-               elseif d=="up" then
-                  dy=y-1
-               end
-               if dx<0 or dx>15
-                  or dy<0 or dy>15 then
-                  o.state="wandering"
-               else
-                  p=objects[dx][dy]
-                  if q!=nil and q.typ!="ant" then
-                     o.state="wandering"
-                  elseif p==nil then
-                     objects[x][y]=nil
-                     objects[dx][dy]=o
-                     ox=dx
-                     oy=dy
-                  end
-               end
-            end
-            if o.state=="wandering"
-               and t%30==0 then
-               d=flr(rnd(5))
-               dx=x
-               dy=y
-               if d==0 then
-                  dx=x-1
-               elseif d==1 then
-                  dx=x+1
-               elseif d==2 then
-                  dy=y-1
-               else
-                  dy=y+1
-               end
-               if dx<0 or dx>15
-                  or dy<0 or dy>15 then
-                  dx=x
-                  dy=y
-               end
-               objects[x][y]=nil
-               objects[dx][dy]=o
-               ox=dx
-               oy=dy
-            end
-            p=phermones[ox][oy]
-            if p!=nil then
-               o.state="following"
-               o.direction=p
-            end
-            o.t=t
-         end
+end
+
+function update_object_following(x,y,o)
+   if t%30==0 then
+      d=o.direction
+      dx=x
+      dy=y
+      if d=="left" then
+	 dx=x-1
+      elseif d=="right" then
+	 dx=x+1
+      elseif d=="down" then
+	 dy=y+1
+      elseif d=="up" then
+	 dy=y-1
+      end
+      if dx<0 or dx>15
+      or dy<0 or dy>15 then
+	 o.state="wandering"
+      else
+	 p=objects[dx][dy]
+	 if q!=nil and q.typ!="ant" then
+	    o.state="wandering"
+	 elseif p==nil then
+	    o.x=dx
+	    o.y=dy
+	    objects[x][y]=nil
+	    objects[dx][dy]=o
+	 end
       end
    end
+   return o
+end
+
+function update_object_wandering(x,y,o)
+   if t%30==0 then
+      d=flr(rnd(5))
+      dx=x
+      dy=y
+      if d==0 then
+	 dx=x-1
+      elseif d==1 then
+	 dx=x+1
+      elseif d==2 then
+	 dy=y-1
+      else
+	 dy=y+1
+      end
+      if dx<0 or dx>15
+      or dy<0 or dy>15 then
+	 dx=x
+	 dy=y
+      end
+      o.x=dx
+      o.y=dy
+      objects[x][y]=nil
+      objects[dx][dy]=o
+   end
+   return o
+end
+
+function update_object_phermones(x,y,o)
+   p=phermones[o.x][o.y]
+   if p!=nil then
+      o.state="following"
+      o.direction=p
+   end
+   return o
 end
 
 function _draw()
    rectfill(0,0,127,127)
+   draw_cursor()
+   draw_phermones()
+   draw_surface()
+   draw_objects()
+end
+
+function draw_cursor()
+   spr(3,cur_x*8,cur_y*8)
+end
+
+function draw_phermones()
    for x=0,15 do
       for y=0,15 do
-         if x==cur_x and y==cur_y then
-            spr(3,x*8,y*8)
-         end
          p=phermones[x][y]
          if p!=nil then
             if p=="left" then
@@ -137,12 +166,26 @@ function _draw()
                spr(7,x*8,y*8)
             end
          end
+      end
+   end
+end
+
+function draw_surface()
+   for x=0,15 do
+      for y=0,15 do
          s=surface[x][y]
          if s==nil then
             spr(0,x*8,y*8)
          else
             spr(1,x*8,y*8)
          end
+      end
+   end
+end
+
+function draw_objects()
+   for x=0,15 do
+      for y=0,15 do
          o=objects[x][y]
          if o!=nil then
             spr(2,x*8,y*8)
@@ -150,6 +193,7 @@ function _draw()
       end
    end
 end
+
 __gfx__
 ffffffffffffffffff0ff0ff88888888ffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000
 ffffffffffffffffff0ff0ff8ffffff8fff8ffffffff8ffffff88ffffff88fff0000000000000000000000000000000000000000000000000000000000000000

@@ -28,32 +28,26 @@ end
 function _update()
    t+=1
    update_phermones()
-   for x=0,15 do
-      for y=0,15 do
-         o=objects[x][y]
-         if o!=nil and o.t!=t then
-            if o.state=="following" then
-	       o=update_object_following(x,y,o)
-            end
-            if o.state=="wandering" then
-	       o=update_object_wandering(x,y,o)
-	    end
-	    o=update_object_phermones(x,y,o)
-	    o.t=t
-         end
-      end
-   end
+   update_visit_cells()
+end
+
+function _draw()
+   rectfill(0,0,127,127)
+   draw_cursor()
+   draw_phermones()
+   draw_surface()
+   draw_objects()
 end
 
 function update_phermones()
    if btn(4) then
-      if btnp(0) then
+      if btn(0) then
          phermones[cur_x][cur_y]="left"
-      elseif btnp(1) then
+      elseif btn(1) then
          phermones[cur_x][cur_y]="right"
-      elseif btnp(2) then
+      elseif btn(2) then
          phermones[cur_x][cur_y]="up"
-      elseif btnp(3) then
+      elseif btn(3) then
          phermones[cur_x][cur_y]="down"
       end
    elseif btn(5) then
@@ -67,6 +61,24 @@ function update_phermones()
          cur_y-=1
       elseif btnp(3) and cur_y<15 then
          cur_y+=1
+      end
+   end
+end
+
+function update_visit_cells()
+   for x=0,15 do
+      for y=0,15 do
+         o=objects[x][y]
+         if o!=nil and o.t!=t then
+            if o.state=="following" then
+	       o=update_object_following(x,y,o)
+            end
+            if o.state=="wandering" then
+	       o=update_object_wandering(x,y,o)
+	    end
+	    o=update_object_phermones(x,y,o)
+	    o.t=t
+         end
       end
    end
 end
@@ -137,14 +149,6 @@ function update_object_phermones(x,y,o)
       o.direction=p
    end
    return o
-end
-
-function _draw()
-   rectfill(0,0,127,127)
-   draw_cursor()
-   draw_phermones()
-   draw_surface()
-   draw_objects()
 end
 
 function draw_cursor()

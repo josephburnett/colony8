@@ -2,8 +2,12 @@ pico-8 cartridge // http://www.pico-8.com
 version 8
 __lua__
 
+level=0
+
 function _init()
    t=0
+   map_x=(level*16)%128
+   map_y=flr(level/128)
    cur_x=7
    cur_y=7
    quota=0
@@ -26,10 +30,14 @@ function _init()
    palt(15,true)
 end
 
+function offset_mget(x,y)
+   return mget(x+map_x,y+map_y)
+end
+
 function find_colonies()
    for x=0,15 do
       for y=0,15 do
-	 if fget(mget(x,y),0) then
+	 if fget(offset_mget(x,y),0) then
 	    add(colonies, {
 		   x=x,
 		   y=y,
@@ -127,7 +135,7 @@ function update_visit_ants()
 end
 
 function update_ant_deliver_food(x,y,o)
-   if fget(mget(x,y),0)
+   if fget(offset_mget(x,y),0)
    and o.food!=nil then
       for c in all(colonies) do
 	 if c.x==x and c.y==y then
@@ -225,7 +233,7 @@ end
 function is_obstructed(x,y)
    if x<0 or x>15
       or y<0 or y>15
-      or fget(mget(x,y),2) then
+      or fget(offset_mget(x,y),2) then
       return true
    else
       return false
@@ -241,7 +249,7 @@ function is_occupied(x,y)
 end
 
 function is_deadly(x,y)
-   if fget(mget(x,y),3) then
+   if fget(offset_mget(x,y),3) then
       return true
    else
       return false
@@ -290,7 +298,7 @@ function draw_phermones()
 end
 
 function draw_map()
-   map(0,0,0,0,16,16)
+   map(0+map_x,0+map_y,0,0,16,16)
 end
 
 function draw_food()

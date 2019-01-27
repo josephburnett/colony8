@@ -117,6 +117,8 @@ function update_visit_ants()
 	       o=update_ant_pickup_food(x,y,o)
 	       -- follow the instructions.
 	       o=update_ant_phermones(x,y,o)
+	       -- do the job.
+	       o=update_ant_deliver_food(x,y,o)
 	       o.t=t
 	    end
          end
@@ -124,6 +126,19 @@ function update_visit_ants()
    end
 end
 
+function update_ant_deliver_food(x,y,o)
+   if fget(mget(x,y),0)
+   and o.food!=nil then
+      for c in all(colonies) do
+	 if c.x==x and c.y==y then
+	    -- well done!
+	    c.quota+=1
+	 end
+      end
+      o.food=nil
+   end
+   return o
+end
 
 function update_ant_following(x,y,o)
    if t%10==0 then

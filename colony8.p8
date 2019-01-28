@@ -15,6 +15,7 @@ function _init()
    find_colonies()
    food={}
    ants={}
+   ant_count=0
    phermones={}
    for x=0,16 do
       ants[x]={}
@@ -82,6 +83,15 @@ function _draw()
    draw_ants()
 end
 
+function is_game_over()
+   l=level_data[level]
+   if l!=nil and ant_count>=l.win then
+      return true
+   else
+      return false
+   end
+end
+
 function update_produce_ants()
    for c in all(colonies) do
       if c.quota > 0
@@ -92,6 +102,7 @@ function update_produce_ants()
          x=c.x,
          y=c.y
       }
+      ant_count+=1
       end
    end
 end
@@ -103,6 +114,7 @@ function update_score(ph)
 end
 
 function update_phermones()
+   if is_game_over() then return end
    if btn(4) then
       if btn(0) then
          update_score("left")
@@ -354,7 +366,12 @@ end
 function draw_hint()
    l=level_data[level]
    if l!=nil then
-      print("hint: "..l.hint,4,2,5)
+      if is_game_over() then
+         s=score-l.par
+         print("you win! golf score: "..s,4,2,8)
+      else
+         print("hint: "..l.hint,4,2,5)
+      end   
    end
 end
 
@@ -369,7 +386,7 @@ end
 level_data={
    {food={{x=5,y=11,w=5,h=2}},
     hint="bring all the food home",
-    par=18}
+    par=18,win=19}
 }
 __gfx__
 00000000ffffffffff0ff0ff88888888ffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000

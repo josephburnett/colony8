@@ -99,6 +99,7 @@ function update_produce_ants()
       c.quota-=1
       ants[c.x][c.y]={
          state="wandering",
+         direction="up",
          x=c.x,
          y=c.y
       }
@@ -227,12 +228,16 @@ function update_ant_wandering(x,y,o)
       dy=y
       if d==0 then
          dx=x-1
+         o.direction="left"
       elseif d==1 then
          dx=x+1
+         o.direction="right"
       elseif d==2 then
          dy=y-1
+         o.direction="up"
       else
          dy=y+1
+         o.direction="down"
       end
       if is_obstructed(dx,dy)
       or is_occupied(dx,dy) then
@@ -360,7 +365,16 @@ function draw_ants()
             if o.food!=nil then
                spr(19,x*8,y*8)
             end
-            spr(2,x*8,y*8)
+            d=o.direction
+            if d=="left" then
+               spr(18,x*8,y*8)
+            elseif d=="right" then
+               spr(18,x*8,y*8,1,1,true)
+            elseif d=="up" then
+               spr(2,x*8,y*8)
+            elseif d=="down" then
+               spr(2,x*8,y*8,1,1,false,true)
+            end
          end
       end
    end
@@ -389,7 +403,7 @@ end
 level_data={
    {food={{x=5,y=11,w=5,h=2}},
     hint="bring all the food home",
-    par=18,win=19}
+    par=12,win=19}
 }
 __gfx__
 00000000ffffffffff0ff0ff88888888ffffffffffffffffffffffffffffffff0000000000000000000000000000000000000000000000000000000000000000

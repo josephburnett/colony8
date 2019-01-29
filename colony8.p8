@@ -357,6 +357,9 @@ function draw_ants()
       for y=0,15 do
          o=ants[x][y]
          if o!=nil then
+            if o.food!=nil then
+               spr(19,x*8,y*8)
+            end
             spr(2,x*8,y*8)
          end
       end

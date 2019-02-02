@@ -159,6 +159,7 @@ function update_visit_ants()
             if is_deadly(o.x,o.y) then
                -- whoops! try again.
                ants[o.x][o.y]=nil
+               ant_count-=1
                respawn()
             else
                -- pick up stuff.

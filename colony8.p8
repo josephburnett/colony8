@@ -53,15 +53,24 @@ function find_food()
    for x=0,15 do
       for y=0,15 do
          if offset_mget(x,y)==19 then
-            food[x][y]={x=x,y=y}
+            make_food(x,y)
             offset_mput(x,y,16)
          end
          if offset_mget(x,y)==51 then
-            food[x][y]={x=x,y=y}
+            make_food(x,y)
             offset_mput(x,y,50)
          end
       end
    end
+end
+
+function make_food(x,y)
+   food[x][y]={
+      x=x,
+      y=y,
+      ox=x,
+      oy=y
+   }
 end
 
 function _update()
@@ -158,9 +167,7 @@ function update_visit_ants()
             end
             if is_deadly(o.x,o.y) then
                -- whoops! try again.
-               ants[o.x][o.y]=nil
-               ant_count-=1
-               respawn()
+               respawn(o)
             else
                -- pick up stuff.
                o=update_ant_pickup_food(x,y,o)
@@ -306,15 +313,18 @@ function set_wandering(x,y,o)
    f=o.food
    if f!=nil and food[x][y]==nil then
       -- sorry! gotta drop it here.
-      f.x=x
-      f.y=y
-      food[x][y]=f
+      make_food(x,y)
       o.food=nil
    end
    return o
 end
 
-function respawn()
+function respawn(o)
+   if o.food!=nil then
+      make_food(o.food.ox,o.food.oy)
+   end
+   ants[o.x][o.y]=nil
+   ant_count-=1
    c=colonies[flr(rnd(#colonies))+1]
    c.quota+=1
 end
